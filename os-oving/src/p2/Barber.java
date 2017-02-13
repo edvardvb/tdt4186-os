@@ -13,8 +13,15 @@ public class Barber implements Runnable {
 	 * @param gui		The GUI.
 	 * @param pos		The position of this barber's chair
 	 */
+	CustomerQueue queue;
+	Gui gui;
+	int pos;
+	
 	public Barber(CustomerQueue queue, Gui gui, int pos) { 
-		// Incomplete
+		this.queue = queue;
+		this.gui = gui;
+		this.pos = pos;
+		
 	}
 
 	/**
