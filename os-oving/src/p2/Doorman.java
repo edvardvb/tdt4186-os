@@ -12,8 +12,13 @@ public class Doorman implements Runnable {
 	 * @param queue		The customer queue.
 	 * @param gui		A reference to the GUI interface.
 	 */
+	
+	CustomerQueue queue;
+	Gui gui;
+
 	public Doorman(CustomerQueue queue, Gui gui) { 
-		// Incomplete
+		this.queue = queue;
+		this.gui = gui;
 	}
 
 	/**
