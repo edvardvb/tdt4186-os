@@ -36,7 +36,7 @@ public class Process {
 	private long nofTimesInReadyQueue = 0;
 	/** The number of times that this process has been placed in the I/O queue */
 	private long nofTimesInIoQueue = 0;
-
+	private long nofProcessedIoTasks = 0;
 	/** The global time of the last event involving this process */
 	private long timeOfLastEvent;
 
@@ -88,6 +88,7 @@ public class Process {
 		statistics.totalTimeSpentWaitingForMemory += timeSpentWaitingForMemory;
         statistics.totalTimeSpentInReadyQueue += timeSpentInReadyQueue;
         statistics.totalTimeSpentInCpu += timeSpentInCpu;
+        statistics.totalBusyCpuTime += timeSpentInCpu;
         statistics.totalTimeSpentWaitingForIo += timeSpentWaitingForIo;
         statistics.totalTimeSpentInIo += timeSpentInIo;
 
@@ -95,6 +96,7 @@ public class Process {
         statistics.totalNofTimesInIoQueue += nofTimesInIoQueue;
 
         statistics.nofCompletedProcesses++;
+        statistics.nofProcessedIoOperations += nofProcessedIoTasks;
 	}
 	
 	public void leftMemoryQueue(long clock) {
@@ -115,6 +117,7 @@ public class Process {
 	public void leftIo(long clock){
 		generateNextIOTime();
 		this.timeSpentInIo += clock - this.timeOfLastEvent;
+		this.nofProcessedIoTasks ++;
 		clock = this.timeOfLastEvent;
 	}
 
