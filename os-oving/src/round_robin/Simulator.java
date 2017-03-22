@@ -4,6 +4,8 @@ import java.lang.*;
 import java.util.LinkedList;
 import java.util.function.Consumer;
 
+import round_robin.graphics.SimulationGui;
+
 /**
  * The main class of the P3 exercise. This class is only partially complete.
  */
@@ -51,7 +53,7 @@ public class Simulator
 		this.avgArrivalInterval = avgArrivalInterval;
 		this.statistics = new Statistics();
 		memory = new Memory(memoryQueue, memorySize, statistics);
-		cpu = new Cpu(cpuQueue, maxCpuTime, statistics);
+		cpu = new Cpu(cpuQueue, maxCpuTime, statistics, eventQueue);
 		io = new Io(ioQueue, avgIoTime, statistics);
 
 		memoryQueue.add(new Process(memorySize, avgIoTime));
@@ -154,19 +156,12 @@ public class Simulator
 		Process p = memory.checkMemory(clock);
 		// As long as there is enough memory, processes are moved from the memory queue to the cpu queue
 		while(p != null) {
+			cpu.insertProcess(p, clock);
 			
-			// TODO: Add this process to the CPU queue!
-			// Also add new events to the event queue if needed
-
-			// Since we haven't implemented the CPU and I/O device yet,
-			// we let the process leave the system immediately, for now.
-			memory.processCompleted(p);
-			// Try to use the freed memory:
-			transferProcessFromMemToReady();
-			// Update statistics
-			p.updateStatistics(statistics);
-
-			// Check for more free memory
+			if (cpu.isIdle()) {
+	              cpu.switchProcess(clock);
+	        }
+			
 			p =	 memory.checkMemory(clock);
 		}
 	}
@@ -175,14 +170,25 @@ public class Simulator
 	 * Simulates a process switch.
 	 */
 	private void switchProcess() {
-		// Incomplete
+		Process old = cpu.switchProcess(clock);
+		
+		if (old != null){
+			this.statistics.nofProcessSwitches ++;
+			cpu.insertProcess(old, clock);
+			
+			if (cpu.isIdle()) {
+	              cpu.switchProcess(clock);
+	        }
+		}
 	}
 
 	/**
 	 * Ends the active process, and deallocates any resources allocated to it.
 	 */
 	private void endProcess() {
-		// Incomplete
+		Process old = cpu.switchProcess(clock);
+        memory.processCompleted(old);
+        old.updateStatistics(statistics, clock);
 	}
 
 	/**
@@ -190,7 +196,16 @@ public class Simulator
 	 * perform an I/O operation.
 	 */
 	private void processIoRequest() {
-		// Incomplete
+		Process p = cpu.activeProcessLeft(clock);
+		io.addIoRequest(p, clock);
+		
+        if (io.isIdle()){
+        	Event event = io.startIoOperation(clock);
+        	if (event != null){
+        		eventQueue.insertEvent(event);
+        	}
+        }
+        
 	}
 
 	/**
@@ -198,7 +213,18 @@ public class Simulator
 	 * is done with its I/O operation.
 	 */
 	private void endIoOperation() {
-		// Incomplete
+		Process old = io.removeActiveProcess(clock);
+		cpu.insertProcess(old, clock);
+		if (cpu.isIdle()){
+			cpu.switchProcess(clock);
+		}
+		if (io.isIdle()){
+			Event event = io.startIoOperation(clock);
+			if (event != null){
+				eventQueue.insertEvent(event);
+			}
+		}
+		
 	}
 
 

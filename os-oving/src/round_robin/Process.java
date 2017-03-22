@@ -53,37 +53,37 @@ public class Process {
 		cpuTimeNeeded = 100 + (long)(Math.random()*9900);
 		// Average interval between I/O requests varies from 1% to 25% of CPU time needed
 		avgIoInterval = (1 + (long)(Math.random()*25))*cpuTimeNeeded/100;
+		generateNextIOTime();
 		// The first and latest event involving this process is its creation
 		timeOfLastEvent = creationTime;
 		// Assign a process ID
 		processId = nextProcessId++;
 	}
+	
+    public long generateNextIOTime(){
+        long time = (long) ((Math.random() * (1.2*avgIoInterval - 0.8*avgIoInterval)) + 0.8*avgIoInterval);
+        this.timeToNextIoOperation = time;
+        return time;
 
-	/**
-	 * This method is called when the process leaves the memory queue (and
-	 * enters the cpu queue).
-     * @param clock The time when the process leaves the memory queue.
-     */
-    public void leftMemoryQueue(long clock) {
-		  timeSpentWaitingForMemory += clock - timeOfLastEvent;
-		  timeOfLastEvent = clock;
     }
 
-    /**
-	 * Returns the amount of memory needed by this process.
-     * @return	The amount of memory needed by this process.
-     */
 	public long getMemoryNeeded() {
 		return memoryNeeded;
 	}
+	
+	public long getRemainingCpuTime(){
+		return this.cpuTimeNeeded;
+	}
+	
+	public long getTimeToNextIoOperation(){
+		return this.timeToNextIoOperation;
+	}
+	
+	public long getProcessId() {
+		return processId;
+	}
 
-    /**
-	 * Updates the statistics collected by the given Statistic object, adding
-	 * data collected by this process. This method is called when the process
-	 * leaves the system.
-     * @param statistics	The Statistics object to be updated.
-     */
-	public void updateStatistics(Statistics statistics) {
+	public void updateStatistics(Statistics statistics, long clock) {
 		
 		statistics.totalTimeSpentWaitingForMemory += timeSpentWaitingForMemory;
         statistics.totalTimeSpentInReadyQueue += timeSpentInReadyQueue;
@@ -96,10 +96,43 @@ public class Process {
 
         statistics.nofCompletedProcesses++;
 	}
-
-	public long getProcessId() {
-		return processId;
+	
+	public void leftMemoryQueue(long clock) {
+		timeSpentWaitingForMemory += clock - this.timeOfLastEvent;
+		timeOfLastEvent = clock;
+	}
+	
+	public void enterIoQueue(long clock){
+		this.nofTimesInIoQueue ++;
+		this.timeOfLastEvent = clock;
+	}
+	
+	public void enterIo(long clock){
+		this.timeSpentWaitingForIo += clock - this.timeOfLastEvent;
+		this.timeOfLastEvent = clock;
+	}
+	
+	public void leftIo(long clock){
+		generateNextIOTime();
+		this.timeSpentInIo += clock - this.timeOfLastEvent;
+		clock = this.timeOfLastEvent;
 	}
 
-	// Add more methods as needed
+	public void enterCpuQueue(long clock){
+		this.nofTimesInReadyQueue ++;
+		this.timeOfLastEvent = clock;
+	}
+	
+	public void enterCpu(long clock){
+		this.timeSpentInReadyQueue += clock - this.timeOfLastEvent;
+		this.timeOfLastEvent = clock;
+	}
+	
+	public void leftCpu(long clock){
+		long timeSpent = clock - this.timeOfLastEvent;
+		this.cpuTimeNeeded -= timeSpent;
+		this.timeToNextIoOperation -= timeSpent;
+		this.timeSpentInCpu += timeSpent;
+		this.timeOfLastEvent = clock;
+	}
 }

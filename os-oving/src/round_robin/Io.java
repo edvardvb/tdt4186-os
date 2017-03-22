@@ -19,9 +19,14 @@ public class Io {
      * @param statistics	A reference to the statistics collector.
      */
     public Io(LinkedList<Process> ioQueue, long avgIoTime, Statistics statistics) {
-        // Incomplete
+        this.ioQueue = ioQueue;
+        this.avgIoTime = avgIoTime;
+        this.statistics = statistics;
     }
 
+    public boolean isIdle(){
+    	return this.activeProcess == null;
+    }
     /**
      * Adds a process to the I/O queue, and initiates an I/O operation
      * if the device is free.
@@ -30,9 +35,9 @@ public class Io {
      * @return					The event ending the I/O operation, or null
      *							if no operation was initiated.
      */
-    public Event addIoRequest(Process requestingProcess, long clock) {
-        // Incomplete
-        return null;
+    public void addIoRequest(Process requestingProcess, long clock) {
+        ioQueue.add(requestingProcess);
+        requestingProcess.enterIoQueue(clock);
     }
 
     /**
@@ -43,7 +48,12 @@ public class Io {
      *					or null	if no operation was initiated.
      */
     public Event startIoOperation(long clock) {
-        // Incomplete
+        if (!ioQueue.isEmpty()){
+        	Process p = ioQueue.remove();
+        	this.activeProcess = p;
+        	p.enterIo(clock);
+        	return new Event(Event.END_IO, clock + activeProcess.generateNextIOTime());
+        }
         return null;
     }
 
@@ -62,10 +72,15 @@ public class Io {
      * Removes the process currently doing I/O from the I/O device.
      * @return	The process that was doing I/O, or null if no process was doing I/O.
      */
-    public Process removeActiveProcess() {
-        // Incomplete
-        return null;
-    }
+    public Process removeActiveProcess(long clock) {
+        Process old = this.activeProcess;
+        if (old != null){
+        	old.leftIo(clock);
+        	this.activeProcess = null;
+        }
+	    return old;
+}
+
 
     public Process getActiveProcess() {
         return activeProcess;
