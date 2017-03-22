@@ -8,6 +8,9 @@ import java.util.LinkedList;
  */
 public class Io {
     private Process activeProcess = null;
+    Statistics statistics;
+    LinkedList<Process> ioQueue;
+    long avgIoTime;
 
     /**
      * Creates a new I/O device with the given parameters.
@@ -49,7 +52,10 @@ public class Io {
      * @param timePassed	The amount of time that has passed since the last call to this method.
      */
     public void timePassed(long timePassed) {
-        // Incomplete
+        statistics.ioQueueLengthTime += ioQueue.size()*timePassed;
+        if (ioQueue.size() > statistics.ioQueueLargestLength) {
+            statistics.ioQueueLargestLength = ioQueue.size();
+        }
     }
 
     /**
