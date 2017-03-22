@@ -17,6 +17,7 @@ public class Barber implements Runnable {
 	Gui gui;
 	int pos;
 	Thread thread;
+	boolean isStopped = false;
 	
 	public Barber(CustomerQueue queue, Gui gui, int pos) { 
 		this.queue = queue;
@@ -33,7 +34,7 @@ public class Barber implements Runnable {
 	 */
 	@Override
 	public void run(){		
-		while(true){
+		while(!this.isStopped){
 			Customer nextCustomer = this.queue.next();
 			gui.fillBarberChair(this.pos, nextCustomer);
 			gui.println("Barber #" + pos + " got a new customer from " + this.queue.pointerStart);
@@ -67,6 +68,7 @@ public class Barber implements Runnable {
 	 * Stops the barber thread.
 	 */
 	public void stopThread() {
+		this.isStopped = true;
 	}
 
 	// Add more methods as needed

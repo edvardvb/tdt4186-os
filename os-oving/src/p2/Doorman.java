@@ -16,6 +16,7 @@ public class Doorman implements Runnable {
 	CustomerQueue queue;
 	Gui gui;
 	Thread thread;
+	boolean isStopped = false;
 
 	public Doorman(CustomerQueue queue, Gui gui) { 
 		this.queue = queue;
@@ -31,7 +32,7 @@ public class Doorman implements Runnable {
 	public void run(){
 		Customer newCustomer;
 		
-		while(true){
+		while(!this.isStopped){
 			gui.println("New customer has arrived");
 			newCustomer = new Customer();
 			this.queue.add(newCustomer);
@@ -58,7 +59,7 @@ public class Doorman implements Runnable {
 	 * a thread.
 	 */
 	public void stopThread() {
-		// Incomplete
+		this.isStopped = true;
 	}
 
 	// Add more methods as needed
