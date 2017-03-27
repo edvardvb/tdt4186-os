@@ -59,12 +59,18 @@ public class Process {
 		// Assign a process ID
 		processId = nextProcessId++;
 	}
-	
     public long generateNextIOTime(){
+    	//gir 50% sjanse for at iotime er 20% under eller 50% for at den er 20% over avgiotime.
         long time = (long) ((Math.random() * (1.2*avgIoInterval - 0.8*avgIoInterval)) + 0.8*avgIoInterval);
         this.timeToNextIoOperation = time;
         return time;
-
+    }
+	
+	
+    public long generateNextIODuration(){
+    	//gir 50% sjanse for at iotime er 20% under eller 50% for at den er 20% over avgiotime.
+        long time = (long) ((Math.random() * (1.2*avgIoInterval - 0.8*avgIoInterval)) + 0.8*avgIoInterval);
+        return time;
     }
 
 	public long getMemoryNeeded() {

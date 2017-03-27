@@ -52,7 +52,7 @@ public class Io {
         	Process p = ioQueue.remove();
         	this.activeProcess = p;
         	p.enterIo(clock);
-        	return new Event(Event.END_IO, clock + activeProcess.generateNextIOTime());
+        	return new Event(Event.END_IO, clock + activeProcess.generateNextIODuration());
         }
         return null;
     }

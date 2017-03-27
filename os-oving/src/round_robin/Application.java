@@ -20,7 +20,8 @@ public class Application {
 
     static void launch(long memorySize, long maxCpuTime, long avgIoTime, long simulationLength, long avgArrivalInterval) {
         Simulator simulator = new Simulator(memorySize, maxCpuTime, avgIoTime, simulationLength, avgArrivalInterval);
-        SimulationGui gui = new SimulationGui(simulator);
+        //SimulationGui gui = new SimulationGui(simulator);
+        simulator.simulate();
     }
 
     /**

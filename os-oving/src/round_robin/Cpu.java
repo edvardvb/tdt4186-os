@@ -59,7 +59,7 @@ public class Cpu {
         if(cpuQueue.isEmpty()) {
             this.activeProcess = null;
         } else {
-            this.activeProcess = (Process)cpuQueue.remove();
+            this.activeProcess = cpuQueue.remove();
         }
 
         
